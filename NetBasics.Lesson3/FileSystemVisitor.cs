@@ -8,8 +8,8 @@ namespace NetBasics.Lesson3
     {
         public static IEnumerable<string> GetEnumerator(DirectoryInfo root)
         {
-            if (root == null)  throw new
-              ArgumentNullException(nameof(root));
+            if (root == null) yield break; 
+            
             string shift = "..";
             FileInfo[] files = null;
             DirectoryInfo[] subDirs = null;
@@ -35,9 +35,9 @@ namespace NetBasics.Lesson3
 
                 foreach (DirectoryInfo dirInfo in subDirs)
                 {
-                    yield return shift + dirInfo.Name;
+                    yield return shift + dirInfo.FullName;
 
-                    foreach (string str1 in GetAllFilesAndDirectories(dirInfo.ToString()))
+                    foreach (string str1 in GetEnumerator(dirInfo))
                     {
                         yield return shift + str1;
                     }
@@ -45,7 +45,7 @@ namespace NetBasics.Lesson3
 
                 foreach (FileInfo fi in files)
                 {
-                    yield return shift + fi.Name;
+                    yield return shift + fi.FullName;
                 }
             }
             else
@@ -54,46 +54,39 @@ namespace NetBasics.Lesson3
             }
         }
 
-        public static IEnumerable<string> GetAllFilesAndDirectories(string path)
-        { 
+        public static IEnumerable<string> FileSystemInitializer(string path)
+        {
+            if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
+
             DirectoryInfo root = new DirectoryInfo(path);
-            if(root.Exists)
+
+            if(! root.Exists) throw new DirectoryNotFoundException(nameof(root));
+            
+             return  GetEnumerator(root);
+
+        }
+
+        public static IEnumerable<string> GetAllFilesAndDirectories(string path, Predicate<string> filter)
+        {
+            var res = FileSystemInitializer(path);
+            foreach (var item in res)
             {
-                var res = GetEnumerator(root);
-                foreach (var item in res)
+                if (filter(item))
                 {
                     yield return item;
                 }
 
             }
-            else
-            {
-                yield break;
-            }
 
         }
-
-        public static IEnumerable<string> GetAllFilesAndDirectories(string filePath, Predicate<string> filter)
+        public static IEnumerable<string> GetAllFilesAndDirectories(string path)
         {
-            //todo: check string is null or empty
-            filter = filter ?? throw new ArgumentNullException(nameof(filter));
-            DirectoryInfo root = new DirectoryInfo(filePath);
-            if (root.Exists)
+            var res = FileSystemInitializer(path);
+            foreach (var item in res)
             {
-                var res = GetEnumerator(root);
-                foreach (var item in res)
-                {
-                    if(filter(item))
-                    {
-                        yield return item;
-                    }
+               
+                    yield return item;
 
-                }
-
-            }
-            else
-            {
-                yield break;
             }
 
         }
