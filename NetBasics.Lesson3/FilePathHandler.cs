@@ -7,14 +7,17 @@ namespace NetBasics.Lesson3
 {
     public class FilePathHandler
     {
-        public IEnumerable<string> GetFiles(string path)
+        
+        public FileInfo[]  GetAllFiles(string path)
         {
-            return Directory.EnumerateFiles(path);
+            DirectoryInfo info = new DirectoryInfo(path);
+            return info.GetFiles("*.*");
         }
 
-        public IEnumerable<string> GetDirectories(string path)
+        public DirectoryInfo[] GetDAllirectories(string path)
         {
-            return Directory.EnumerateDirectories(path);
+            DirectoryInfo info = new DirectoryInfo(path);
+            return info.GetDirectories();
         }
     }
 }
