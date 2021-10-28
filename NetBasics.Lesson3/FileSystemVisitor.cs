@@ -4,48 +4,82 @@ using System.IO;
 
 namespace NetBasics.Lesson3
 {
-    public static class FileSystemVisitor
+    public  class FileSystemVisitor
     {
-        public static IEnumerable<string> GetEnumerator(DirectoryInfo root)
+
+        private readonly string _root;
+
+        private readonly Predicate<string> _filter = (x) => true;
+
+        public event EventHandler<EventArgs> Start;
+        public event EventHandler<EventArgs> Finish;
+        public event EventHandler<FileSystemEventArgs> FileFinded;
+        public event EventHandler<FileSystemEventArgs> FilteredFileFinded;
+
+        public FileSystemVisitor( string root)
         {
-            if (root == null) yield break; 
-            
+            if(string.IsNullOrEmpty(root))
+            {
+                throw new ArgumentNullException(nameof(root));  
+            }
+
+            if(!Directory.Exists(root))
+            {
+                throw new DirectoryNotFoundException(nameof(root));
+            }
+            _root = root;
+        }
+        public FileSystemVisitor(string root, Predicate<string> filter):this(root)
+        {
+           
+            if (filter == null)
+            {
+                throw new ArgumentNullException(nameof(filter));
+            }
+
+            _root = root;
+            _filter = filter;
+        }
+
+
+        private IEnumerable<string> GetEnumerator(DirectoryInfo rootDir)
+        {
             string shift = "..";
             FileInfo[] files = null;
             DirectoryInfo[] subDirs = null;
 
             try
             {
-                files = root.GetFiles("*.*");
+                files = rootDir.GetFiles("*.*");
             }
 
             catch (UnauthorizedAccessException ex)
             {
-                //Console.WriteLine(e.Message);
-
+                Console.WriteLine(ex.Message);
             }
             catch (DirectoryNotFoundException ex)
             {
-
-                //Console.WriteLine(e.Message);
+                Console.WriteLine(ex.Message);
             }
             if (files != null)
             {
-                subDirs = root.GetDirectories();
-
+                subDirs = rootDir.GetDirectories();
+                
                 foreach (DirectoryInfo dirInfo in subDirs)
                 {
-                    yield return shift + dirInfo.FullName;
+                    if (_filter(dirInfo.FullName)) yield return shift + dirInfo.FullName;
+                  
 
                     foreach (string str1 in GetEnumerator(dirInfo))
                     {
-                        yield return shift + str1;
+                        if (_filter(str1))  yield return shift + str1;
+                          
                     }
                 }
-
                 foreach (FileInfo fi in files)
                 {
-                    yield return shift + fi.FullName;
+                    if (_filter(fi.FullName)) yield return shift + fi.FullName;
+
                 }
             }
             else
@@ -54,42 +88,33 @@ namespace NetBasics.Lesson3
             }
         }
 
-        public static IEnumerable<string> FileSystemInitializer(string path)
+        public  IEnumerable<string> GetAllFilesAndDirectories()
         {
-            if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
-
-            DirectoryInfo root = new DirectoryInfo(path);
-
-            if(! root.Exists) throw new DirectoryNotFoundException(nameof(root));
-            
-             return  GetEnumerator(root);
-
-        }
-
-        public static IEnumerable<string> GetAllFilesAndDirectories(string path, Predicate<string> filter)
-        {
-            var res = FileSystemInitializer(path);
+            DirectoryInfo rootDir = new DirectoryInfo(_root);
+            var res = GetEnumerator(rootDir);
+            OnStart(new EventArgs());
             foreach (var item in res)
             {
-                if (filter(item))
-                {
-                    yield return item;
-                }
-
+                yield return item;
+    
             }
 
+            OnFinish(new EventArgs());
+
         }
-        public static IEnumerable<string> GetAllFilesAndDirectories(string path)
+
+
+        public virtual void OnStart(EventArgs args)
         {
-            var res = FileSystemInitializer(path);
-            foreach (var item in res)
-            {
-               
-                    yield return item;
 
-            }
-
+            Start?.Invoke(this, args);
         }
+        public virtual void OnFinish(EventArgs args)
+        {
+
+            Finish?.Invoke(this, args);
+        }
+
 
     }
 

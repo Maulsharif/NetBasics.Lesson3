@@ -11,14 +11,20 @@ namespace NetBasics.Lesson3
         {
             
             string startDir = @"C:\Users\Madina_Mauilsharipov\Desktop\tempDir";
-            
-            Predicate<string> filter1 = res => res.EndsWith(".txt");
+
+          
+
+            Predicate<string> filter1 = (res)=> res.Contains("txt");
           
             try
             {
 
-                var res = FileSystemVisitor.GetAllFilesAndDirectories(startDir, filter1);
-                foreach (var item in res)
+                var res =  new FileSystemVisitor(startDir,filter1);
+                res.Start += (sender, e) => { Console.WriteLine("Start"); };
+                res.Finish += (sender, e) => { Console.WriteLine("Finish"); };
+            
+
+                foreach (var item in res.GetAllFilesAndDirectories())
                {
                    Console.WriteLine(item);
                }

@@ -2,37 +2,48 @@ using Moq;
 using NetBasics.Lesson3;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace NetBasics.Test
 {
-   
+
     [TestFixture]
     public class Tests
     {
 
         [Test]
-        public void GetAllFilesAndDirectoriesNullorWrongPath()
+        public void ConstructorExceptionCheck()
         {
-           Assert.That(() => FileSystemVisitor.FileSystemInitializer(null), Throws.InstanceOf<ArgumentNullException>());
-           Assert.That(() => FileSystemVisitor.FileSystemInitializer("gfhf"), Throws.InstanceOf<DirectoryNotFoundException>());
+            Assert.Throws<ArgumentNullException>(() => new FileSystemVisitor(null));
+            Assert.Throws<ArgumentNullException>(() => new FileSystemVisitor(null, null));
+            Assert.Throws<ArgumentNullException>(() => new FileSystemVisitor(null, (res) => res.Contains(".")));
+            Assert.Throws<ArgumentNullException>(() => new FileSystemVisitor(@"C:\", null));
+
         }
 
         [Test]
-        public void GetAllFilesAndDirectoriesCheckPredicate()
+        public void CheckDirElementsNumber()
         {
-
-            string dir = @"C:\Users\Madina_Mauilsharipov\source\repos\NetBasics.Lesson3\NetBasics.Test\TestDir\";
-            string test = $"....{dir}Movies\\film1.txt";
-            var res = FileSystemVisitor.GetAllFilesAndDirectories(dir, res => res.EndsWith(".txt"));
-            string check = "";
-            foreach (var item in res)
-            {
-                check = item;
-                break;
-            }
-            Assert.AreEqual(check, test);
+            string dir = @"../../../TestDir";
+            var fileSystemVisitor = new FileSystemVisitor(dir);
+            var fileSystemVisitorRes = fileSystemVisitor.GetAllFilesAndDirectories();
+            int count = GetnumberOfElements(fileSystemVisitorRes);
+            Assert.AreEqual(count, 2);
         }
 
+     
+        public int GetnumberOfElements(IEnumerable<string> dir)
+        {
+            int n = 0;
+            foreach (var item in dir)
+            {
+                n++;
+            }
+            return n;
+           
+        }
     }
+
 }

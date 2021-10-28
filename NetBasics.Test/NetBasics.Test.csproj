@@ -18,8 +18,4 @@
     <ProjectReference Include="..\NetBasics.Lesson3\NetBasics.Lesson3.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TestDir\" />
-  </ItemGroup>
-
 </Project>
