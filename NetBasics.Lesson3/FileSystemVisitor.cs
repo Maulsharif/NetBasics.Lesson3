@@ -12,6 +12,7 @@ namespace NetBasics.Lesson3
 
         public event EventHandler<EventArgs> Start;
         public event EventHandler<EventArgs> Finish;
+        public event EventHandler<FileSystemEventArgs> FileAccessDenied;
         public event EventHandler<FileSystemEventArgs> FileFinded;
         public event EventHandler<FileSystemEventArgs> FilteredFileFinded;
         public event EventHandler<DirectorySystemEventArgs> DirectoryFinded;
@@ -65,7 +66,8 @@ namespace NetBasics.Lesson3
 
             catch (UnauthorizedAccessException ex)
             {
-                Console.WriteLine(ex.Message);
+                var fileEvent = new FileSystemEventArgs { fileName = ex.Message };
+                OnFileAccessDenied(fileEvent);
             }
             catch (DirectoryNotFoundException ex)
             {
@@ -154,6 +156,11 @@ namespace NetBasics.Lesson3
         {
 
             FilteredDirectoryFinded?.Invoke(this, args);
+        }
+        public virtual void OnFileAccessDenied(FileSystemEventArgs args)
+        {
+
+            FileAccessDenied?.Invoke(this, args);
         }
 
 

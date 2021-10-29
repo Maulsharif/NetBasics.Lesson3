@@ -23,6 +23,7 @@ namespace NetBasics.Lesson3
               
                 res.FileFinded += (sender, e) => { Console.WriteLine($"---------------------------\nFILE finded:{e.fileName}"); };
                 res.FilteredFileFinded += (sender, e) => { Console.WriteLine($"FILTERED FILE finded:{e.fileName}"); };
+                res.FileAccessDenied += (sender, e) => { Console.WriteLine($"ACCESS DENIED :{e.fileName}"); };
                 res.DirectoryFinded += (sender, e) => { Console.WriteLine($"DIRECTORY finded:{e.dirName}"); };
                 res.FilteredDirectoryFinded += (sender, e) => { Console.WriteLine($" FILTERED DIRECTORY finded:{e.dirName}"); };
                 
