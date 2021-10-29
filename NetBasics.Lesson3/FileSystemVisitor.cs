@@ -83,7 +83,7 @@ namespace NetBasics.Lesson3
                     OnDirectoryFinded(dirEvent);
                     if (dirEvent.stop) { yield break; }
 
-                    if (!dirEvent.remove && _filter(dirInfo.FullName))
+                    if (!dirEvent.isRemoved && _filter(dirInfo.FullName))
                     {  
                         yield return  dirInfo.FullName;
                         var filteredDirEvent = new DirectorySystemEventArgs { dirName = dirInfo.FullName };
@@ -101,7 +101,7 @@ namespace NetBasics.Lesson3
                     var fileEvent = new FileSystemEventArgs { fileName = fi.FullName };
                     OnFileFinded(fileEvent);
                     if (fileEvent.stop) yield break;
-                    if (!fileEvent.remove && _filter(fi.FullName))
+                    if (!fileEvent.isRemoved && _filter(fi.FullName))
                     {
                         yield return  fi.FullName;
                         var fileteredFileEvent = new FileSystemEventArgs { fileName = fi.FullName };

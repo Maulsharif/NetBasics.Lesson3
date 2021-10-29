@@ -10,7 +10,7 @@ namespace NetBasics.Lesson3
         static void Main(string[] args)
         {
             
-            string startDir = @"C:\Users\Madina_Mauilsharipov\Desktop\tempDir";
+            string startDir = @"C:\Users\Madina_Mauilsharipov";
             Predicate<string> filter1 = (res)=> res.Contains("txt");
             Predicate<string> filter2 = (res) => res.EndsWith("der");
          

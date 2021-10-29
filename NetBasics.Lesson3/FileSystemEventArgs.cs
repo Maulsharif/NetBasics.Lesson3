@@ -9,7 +9,7 @@ namespace NetBasics.Lesson3
     {
         public string fileName;
         public bool stop;
-        public bool remove;
+        public bool isRemoved;
 
     }
 
@@ -18,7 +18,7 @@ namespace NetBasics.Lesson3
     {
         public string dirName;
         public bool stop;
-        public bool remove;
+        public bool isRemoved;
 
     }
 }
