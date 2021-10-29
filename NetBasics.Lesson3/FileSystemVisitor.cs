@@ -6,7 +6,6 @@ namespace NetBasics.Lesson3
 {
     public  class FileSystemVisitor
     {
-
         private readonly string _root;
 
         private readonly Predicate<string> _filter = (x) => true;
@@ -78,7 +77,11 @@ namespace NetBasics.Lesson3
                 }
                 foreach (FileInfo fi in files)
                 {
-                    if (_filter(fi.FullName)) yield return shift + fi.FullName;
+                    var fileEvent = new FileSystemEventArgs { fileName = fi.FullName };
+                    OnFileFinded(fileEvent);
+
+                    if (fileEvent.stop) yield break;
+                    if ( !fileEvent.remove &&_filter(fi.FullName)) yield return shift + fi.FullName;
 
                 }
             }
@@ -113,6 +116,16 @@ namespace NetBasics.Lesson3
         {
 
             Finish?.Invoke(this, args);
+        }
+        public virtual void OnFileFinded(FileSystemEventArgs args)
+        {
+
+            FileFinded?.Invoke(this, args);
+        }
+        public virtual void OnFilteredFileFinded(FileSystemEventArgs args)
+        {
+
+            FilteredFileFinded?.Invoke(this, args);
         }
 
 

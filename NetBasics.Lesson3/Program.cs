@@ -22,7 +22,8 @@ namespace NetBasics.Lesson3
                 var res =  new FileSystemVisitor(startDir,filter1);
                 res.Start += (sender, e) => { Console.WriteLine("Start"); };
                 res.Finish += (sender, e) => { Console.WriteLine("Finish"); };
-            
+                res.FileFinded += (sender, e) => { Console.WriteLine($"Before filter file finded:{e.fileName}"); };
+
 
                 foreach (var item in res.GetAllFilesAndDirectories())
                {

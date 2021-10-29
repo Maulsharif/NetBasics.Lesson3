@@ -7,8 +7,9 @@ namespace NetBasics.Lesson3
     //Флаги для файлов
     public class FileSystemEventArgs
     {
-        bool Stop;
-        bool Remove;
+        public string fileName;
+        public bool stop;
+        public bool remove;
 
     }
 }
