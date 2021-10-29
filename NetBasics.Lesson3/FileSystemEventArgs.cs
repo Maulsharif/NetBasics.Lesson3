@@ -12,4 +12,13 @@ namespace NetBasics.Lesson3
         public bool remove;
 
     }
+
+    //Флаги для папок
+    public class DirectorySystemEventArgs
+    {
+        public string dirName;
+        public bool stop;
+        public bool remove;
+
+    }
 }

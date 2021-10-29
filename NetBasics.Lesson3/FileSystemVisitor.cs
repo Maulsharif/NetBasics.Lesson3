@@ -14,6 +14,8 @@ namespace NetBasics.Lesson3
         public event EventHandler<EventArgs> Finish;
         public event EventHandler<FileSystemEventArgs> FileFinded;
         public event EventHandler<FileSystemEventArgs> FilteredFileFinded;
+        public event EventHandler<DirectorySystemEventArgs> DirectoryFinded;
+        public event EventHandler<DirectorySystemEventArgs> FilteredDirectoryFinded;
 
         public FileSystemVisitor( string root)
         {
@@ -24,13 +26,22 @@ namespace NetBasics.Lesson3
 
             if(!Directory.Exists(root))
             {
-                throw new DirectoryNotFoundException(nameof(root));
+                throw new DirectoryNotFoundException($"{root} directory doesn't exist");
             }
             _root = root;
         }
-        public FileSystemVisitor(string root, Predicate<string> filter):this(root)
+        public FileSystemVisitor(string root, Predicate<string> filter)
         {
-           
+            if (string.IsNullOrEmpty(root))
+            {
+                throw new ArgumentNullException(nameof(root));
+            }
+
+            if (!Directory.Exists(root))
+            {
+                throw new DirectoryNotFoundException($"{root} directory doesn't exist");
+            }
+
             if (filter == null)
             {
                 throw new ArgumentNullException(nameof(filter));
@@ -43,7 +54,7 @@ namespace NetBasics.Lesson3
 
         private IEnumerable<string> GetEnumerator(DirectoryInfo rootDir)
         {
-            string shift = "..";
+           
             FileInfo[] files = null;
             DirectoryInfo[] subDirs = null;
 
@@ -66,12 +77,20 @@ namespace NetBasics.Lesson3
                 
                 foreach (DirectoryInfo dirInfo in subDirs)
                 {
-                    if (_filter(dirInfo.FullName)) yield return shift + dirInfo.FullName;
-                  
+                    var dirEvent = new DirectorySystemEventArgs { dirName = dirInfo.FullName };
+                    OnDirectoryFinded(dirEvent);
+                    if (dirEvent.stop) { yield break; }
 
+                    if (!dirEvent.remove && _filter(dirInfo.FullName))
+                    {  
+                        yield return  dirInfo.FullName;
+                        var filteredDirEvent = new DirectorySystemEventArgs { dirName = dirInfo.FullName };
+                        OnFilteredDirectoryFinded(filteredDirEvent);
+                    }
+                 
                     foreach (string str1 in GetEnumerator(dirInfo))
                     {
-                        if (_filter(str1))  yield return shift + str1;
+                        if (_filter(str1))  yield return  str1;
                           
                     }
                 }
@@ -79,10 +98,13 @@ namespace NetBasics.Lesson3
                 {
                     var fileEvent = new FileSystemEventArgs { fileName = fi.FullName };
                     OnFileFinded(fileEvent);
-
                     if (fileEvent.stop) yield break;
-                    if ( !fileEvent.remove &&_filter(fi.FullName)) yield return shift + fi.FullName;
-
+                    if (!fileEvent.remove && _filter(fi.FullName))
+                    {
+                        yield return  fi.FullName;
+                        var fileteredFileEvent = new FileSystemEventArgs { fileName = fi.FullName };
+                        OnFilteredFileFinded(fileteredFileEvent);
+                    }
                 }
             }
             else
@@ -99,17 +121,13 @@ namespace NetBasics.Lesson3
             foreach (var item in res)
             {
                 yield return item;
-    
             }
 
             OnFinish(new EventArgs());
-
         }
-
 
         public virtual void OnStart(EventArgs args)
         {
-
             Start?.Invoke(this, args);
         }
         public virtual void OnFinish(EventArgs args)
@@ -126,6 +144,16 @@ namespace NetBasics.Lesson3
         {
 
             FilteredFileFinded?.Invoke(this, args);
+        }
+        public virtual void OnDirectoryFinded(DirectorySystemEventArgs args)
+        {
+
+            DirectoryFinded?.Invoke(this, args);
+        }
+        public virtual void OnFilteredDirectoryFinded(DirectorySystemEventArgs args)
+        {
+
+            FilteredDirectoryFinded?.Invoke(this, args);
         }
 
 
